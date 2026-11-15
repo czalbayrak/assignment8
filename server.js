@@ -9,6 +9,13 @@ const COURSES = [
     {id: 2, title: 'Web Development Basics', credits: 5 },
     {id: 3, title: 'Databases', credits: 4},
 ];
+function logger(req, res, next) {
+    const timestamp = new Date().toISOString();
+    console.log(`[${timestamp}] ${req.method} ${req.originalUrl}`);
+    next();
+  }
+  
+  app.use(logger);
 
 app.get('/hello', (req, res) =>{
     res.type('text/plain').send("Hello from Zeynep's server");
@@ -52,7 +59,9 @@ app.use((req, res) => {
     }
   });
 
-app.listen(PORT, ()=> {
+  app.listen(PORT, (error) => {
+    if (error) {
+      throw error;
+    }
     console.log(`Server running at http://localhost:${PORT}`);
-
-});
+  });
