@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="widht=device-widht , initial-scale=1.0">
+    <title>Open Code Academy - Info Server</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>Open Code Academy</h1>
+        <p>A made-up study programme for future web developers.</p>    
+    </header>
+    <main>
+        <section>
+          <h2>About the programme</h2>
+          <p>
+            Open Code Academy is a one-year programme where students learn
+            programming, web development and databases step by step.
+            Every course ends with a small project, so students build a
+            portfolio while they learn.
+          </p>
+          <p>
+            This page is served by our own Express server. Use the buttons
+            below to call each API route and see the response.
+          </p>
+        </section>
+    
+        <section>
+          <h2>Try the API</h2>
+          <div class="buttons">
+            <button data-path="/api/courses">GET /api/courses</button>
+            <button data-path="/api/status">GET /api/status</button>
+            <button data-path="/api/headers">GET /api/headers</button>
+            <button data-path="/api/subscribe" data-method="POST">POST /api/subscribe</button>
+            <button data-path="/api/admin">GET /api/admin</button>
+            <button data-path="/api/stats">GET /api/stats</button>
+            <button data-path="/api/does-not-exist">GET /api/does-not-exist</button>
+          </div>
+        </section>
+    
+        <section>
+          <h2>Response</h2>
+          <p id="status">Click a button to send a request.</p>
+          <pre id="output"></pre>
+        </section>
+      </main>
+    
+      <script src="app.js"></script>
+    </body>
+    </html>

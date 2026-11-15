@@ -1,7 +1,9 @@
 import express from 'express';
+import path from 'node:path';
 
 const app= express();
 const PORT =process.env.PORT || 3000;
+const PUBLIC_DIR = path.join(import.meta.dirname, 'public');
 const ROBOTS_TXT ='User-agent: *\nDisallow: /api/\n';
 
 const COURSES = [
@@ -24,6 +26,8 @@ function requestCounter(req, res, next){
   
 app.use(logger);
 app.use(requestCounter);
+app.use(express.static(PUBLIC_DIR));
+
 app.get('/hello', (req, res) =>{
     res.type('text/plain').send("Hello from Zeynep's server");
 });
