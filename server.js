@@ -9,14 +9,21 @@ const COURSES = [
     {id: 2, title: 'Web Development Basics', credits: 5 },
     {id: 3, title: 'Databases', credits: 4},
 ];
+
+let requestsServed=0;
+
 function logger(req, res, next) {
     const timestamp = new Date().toISOString();
     console.log(`[${timestamp}] ${req.method} ${req.originalUrl}`);
     next();
-  }
+}
+function requestCounter(req, res, next){
+    requestsServed += 1;
+    next();
+}
   
-  app.use(logger);
-
+app.use(logger);
+app.use(requestCounter);
 app.get('/hello', (req, res) =>{
     res.type('text/plain').send("Hello from Zeynep's server");
 });
@@ -50,6 +57,10 @@ app.post('/api/subscribe', (req, res) => {
 app.get('/api/admin', (req, res) => {
     res.status(403).json({ error: 'Forbidden' });
 });
+
+app.get('/api/stats', (req, res) => {
+    res.json({ requestsServed });
+  });
 
 app.use((req, res) => {
     if (req.path.startsWith('/api')) {
