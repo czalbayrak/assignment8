@@ -186,6 +186,79 @@ Disallow: /api/
 
 ## Reasoning questions
 
+**1. Route order.** I moved the 404 fallback to the top of `server.js`,
+right after `const app = express()`. After that, every request returned
+404, even `/`, `/hello` and `/api/courses`, and nothing was printed in the
+server terminal. Express runs middleware and routes from top to bottom; a
+path-less `app.use` matches every request, and because it sends a response
+without calling `next()`, nothing below it (not even the logger) ever ran.
+
+**2. Middleware.** When I removed `next()` from the logger, the browser
+kept loading forever and curl hung until I stopped it with Ctrl + C. The
+server still printed the log line for each request, because the logger
+itself ran, but the request was never passed on to the counter or the
+routes, so no response was ever sent.
+
+**3. Status codes.** `201 Created` tells the client that the request
+succeeded and that something new was created (a subscription), while `200`
+only means "OK". A missing page must return `404` so that browsers, search
+engines and code like `fetch` (`response.ok`) can see the error from the
+status code alone; a `200` with an error message would look like a
+success.
+
+**4. Configuration.** Hosting platforms decide which port an app must use
+and pass it in the `PORT` environment variable, and port 3000 may already
+be taken on another machine. Reading `process.env.PORT` lets the same code
+run anywhere without editing it, and `3000` stays as a local default.
+
+**5. Dependencies.** `node_modules` is very large, can contain files that
+only work on one operating system, and can be rebuilt exactly from
+`package.json` and `package-lock.json`. After cloning, a teammate only
+needs to run `npm install` in the project folder and then `npm start`.
+
+**6. Same origin.** If `index.html` is opened directly from disk
+(`file://`), the relative URL `/api/courses` points to a file on the disk
+instead of the server, and the browser also blocks `fetch` from a
+`file://` page, so every button fails. This restriction is called the
+**same-origin policy**: a page may only request its own origin (protocol +
+host + port) unless the server allows other origins with CORS. When the
+page is served from `http://localhost:3000`, the page and the API share
+the same origin.
+
 ## Self-study notes
 
+- **Node version and uptime:** In the Node.js documentation for the
+  `process` object I found `process.version`, which returns the running
+  Node version (for example `v22.11.0`), and `process.uptime()`, which
+  returns how many seconds the process has been running. I rounded it down
+  with `Math.floor` for `/api/status`.
+- **Content type:** The Express documentation shows that
+  `res.type('text/plain')` sets `Content-Type: text/plain; charset=utf-8`.
+  Without it, `res.send` with a string sends `text/html`. I used it for
+  `/robots.txt`, `/hello` and the non-API 404.
+- **Pretty JSON in the page:** `JSON.stringify(data, null, 2)` formats JSON
+  with two-space indentation, and the `<pre>` element keeps the spaces and
+  line breaks, so the response is easy to read.
+- **Paths that work from any folder:** ES modules have no `__dirname`, so I
+  used `import.meta.dirname` with `path.join` to build the path to
+  `public/`. This way the page loads even when the server is started from
+  another folder (`node assignment8/server.js`).
+- **Express 5 wildcard:** `app.get('*', ...)` is not accepted in Express 5,
+  so the 404 fallback is a path-less `app.use` placed after all routes.
+
 ## Challenges
+
+- **Template literals:** My first start message printed
+  `http://localhost:${PORT}` literally, because I used single quotes
+  instead of backticks. Only backticks insert the value of `${PORT}`.
+- **Port already in use:** When I ran `npm run dev` while an old server
+  was still running in another terminal, the new server printed "Server
+  running" and then stopped immediately, because port 3000 was already
+  taken. I fixed it by closing all old terminals and starting the server
+  again in a single terminal.
+- **Starting the server before testing:** At first curl said "Failed to
+  connect", because I had stopped the server. I learned to keep one
+  terminal for the server and another for curl and git.
+- **Small typos with big effects:** A wrong path made `/api/status` return
+  404, and `git add README.MD` added nothing because the file is called
+  `README.md`.
